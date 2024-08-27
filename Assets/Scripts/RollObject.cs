@@ -29,6 +29,9 @@ public class RollObject : MonoBehaviour
     private bool isRotating = false;
     public float straSize;
 
+    public PuzzleController controller;
+    public int num;
+
     void Start()
     {
         straSize = transform.localScale.x;
@@ -148,7 +151,7 @@ public class RollObject : MonoBehaviour
 
     }
     // Rotate the object by 90 degrees around the z-axis
-    void RotateObjectBy90()
+    public void RotateObjectBy90()
     {
         if (!isRotating)
         {
@@ -159,7 +162,7 @@ public class RollObject : MonoBehaviour
     }
 
     // Rotate the object by -90 degrees around the z-axis
-    void RotateObjectByMinus90()
+    public void RotateObjectByMinus90()
     {
         if (!isRotating)
         {
