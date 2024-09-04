@@ -18,6 +18,12 @@ public class PuzzleController : MonoBehaviour
         CreateGamePieces(0, PuzzleType.Horizontal);
     }
 
+    [SerializeField] private AudioSource audioS;
+    public AudioClip audioClip;
+    public void PlaySound()
+    {
+        audioS.PlayOneShot(audioClip);
+    }
     // Update is called once per frame
     void Update()
     {
@@ -28,6 +34,8 @@ public class PuzzleController : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit) && hit.collider.gameObject.GetComponent<RollObject>() != null)
             {
+                PlaySound();
+
                 hit.collider.gameObject.GetComponent<RollObject>().RotateObjectBy90();
             }
         }
@@ -38,6 +46,8 @@ public class PuzzleController : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit) && hit.collider.gameObject.GetComponent<RollObject>() != null)
             {
+                PlaySound();
+
                 hit.collider.gameObject.GetComponent<RollObject>().RotateObjectByMinus90();
             }
         }

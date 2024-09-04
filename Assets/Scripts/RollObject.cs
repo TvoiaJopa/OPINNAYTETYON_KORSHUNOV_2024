@@ -94,68 +94,23 @@ public class RollObject : MonoBehaviour
             }
         }
 
-        /* if (changeScale)
-         {
-             if ((int)transform.localScale.x != newScale* straSize)
-             {
-                 Vector3 currentScale = transform.localScale;
-                 currentScale.x += Time.deltaTime * currentScale.x*newScale / changeScaleSpeed;
-                 transform.localScale = currentScale;
-             }
-             else
-             {
-                 changeScale = false;
-                 Vector3 currentScale = transform.localScale;
-                 currentScale.x = newScale;
-                 transform.localScale = currentScale;
-             }
-         }*/
-        // Rotate object towards the target rotation
-
-
-        if (isRotating)
-        {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime * animspeed);
-
-            // Check if the target rotation is reached
-            if (Quaternion.Angle(transform.rotation, targetRotation) < 0.1f)
-            {
-                transform.rotation = targetRotation;
-                isRotating = false;
-                totalRotation = Mathf.RoundToInt(transform.rotation.eulerAngles.z);
-                CheckComplited();
-            }
-        }
-
-        if (changeScale)
-        {
-            Vector3 currentScale = transform.localScale;
-            float targetScaleX = newScale * straSize;
-            float scaleChange = Time.deltaTime * changeScaleSpeed * Mathf.Sign(targetScaleX - currentScale.x);
-
-            // Apply scale change
-            currentScale.x += scaleChange;
-            transform.localScale = currentScale;
-
-            // Check if the scaling is completed
-            if (Mathf.Abs(targetScaleX - currentScale.x) < 1f)
-            {
-                currentScale.x = targetScaleX;
-                transform.localScale = currentScale;
-                changeScale = false;
-                scaled = true;
-
-                CheckComplited();
-            }
-        }
 
     }
+    [SerializeField]private AudioSource audioS;
+    public AudioClip audioClip;
+
+    public void PlaySound()
+    {
+        audioS.PlayOneShot(audioClip);
+    }
+
     // Rotate the object by 90 degrees around the z-axis
     public void RotateObjectBy90()
     {
         if (!isRotating)
         {
-            targetRotation = Quaternion.Euler(0, 0, totalRotation + 90f);
+            PlaySound();
+            StartRotation(Quaternion.Euler(0, 0, totalRotation + 90f));
             isRotating = true;
             scaled = false;
         }
@@ -166,13 +121,46 @@ public class RollObject : MonoBehaviour
     {
         if (!isRotating)
         {
-            targetRotation = Quaternion.Euler(0, 0, totalRotation - 90f);
+            PlaySound();
+            StartRotation(Quaternion.Euler(0, 0, totalRotation - 90f));
             isRotating = true;
             scaled = false;
         }
     }
+    public void StartRotation(Quaternion newTargetRotation)
+    {
+        if (isRotating) return; // Prevent starting a new rotation if already rotating
+        targetRotation = newTargetRotation;
+        StartCoroutine(RotationCoroutine());
+    }
 
-  
+    private IEnumerator RotationCoroutine()
+    {
+        isRotating = true;
+
+        // Continue rotating until the target rotation is reached
+        while (Quaternion.Angle(transform.rotation, targetRotation) >= 0.1f)
+        {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime * animspeed);
+            yield return null; // Wait for the next frame
+        }
+
+        // Ensure the final rotation is exactly the target rotation
+        transform.rotation = targetRotation;
+        isRotating = false;
+
+        // Assuming totalRotation is meant to be the z component of the Euler angles
+        totalRotation = Mathf.RoundToInt(transform.rotation.eulerAngles.z);
+
+        if (Mathf.Abs(transform.localRotation.eulerAngles.z) < 0.001f)
+        {
+            roatteRight = false;
+        }
+        // Method call when rotation is complete
+        CheckComplited();
+    }
+
+
     // Scale the object by applying the scale change factor
     void ScaleObject()
     {
